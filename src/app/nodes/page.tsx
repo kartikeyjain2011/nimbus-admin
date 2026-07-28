@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Cpu, Server, Activity, Flame, ShieldAlert, CheckCircle, RefreshCw, Power } from "lucide-react";
+import { Cpu, Server, Activity, Flame, ShieldAlert, CheckCircle, RefreshCw, Power, Info } from "lucide-react";
 
 const initialRacks = [
   { id: "RACK-MUM-01", dc: "Mumbai Primary DC", type: "NVIDIA RTX 4090 (24GB VRAM)", activeCount: 64, totalCount: 64, load: 96, temp: "68°C", fanSpeed: "82%", status: "Online" },
@@ -26,6 +26,12 @@ export default function NodesPage() {
 
   return (
     <div className="space-y-6">
+      {/* Data source notice */}
+      <div className="rounded-xl bg-[#f59e0b]/10 border border-[#f59e0b]/30 px-4 py-2.5 flex items-center gap-2 text-[11px] font-mono text-[#f59e0b]">
+        <Info className="w-3.5 h-3.5 shrink-0" />
+        <span>Simulated data — frontendnimbuz.vercel.app has no real GPU/infra monitoring backend to source this from.</span>
+      </div>
+
       {/* Header Banner */}
       <div className="card-panel rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>

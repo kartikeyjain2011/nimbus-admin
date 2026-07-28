@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Activity, Zap, Radio, Globe, Shield, RefreshCw, BarChart2, CheckCircle2 } from "lucide-react";
+import { Activity, Zap, Radio, Globe, Shield, RefreshCw, BarChart2, CheckCircle2, Info } from "lucide-react";
 
 export default function TelemetryPage() {
   const [pingData, setPingData] = useState<number[]>([11, 10, 12, 11, 9, 11, 13, 11, 10, 11, 12, 11, 10, 11]);
@@ -18,6 +18,12 @@ export default function TelemetryPage() {
 
   return (
     <div className="space-y-6">
+      {/* Data source notice */}
+      <div className="rounded-xl bg-[#f59e0b]/10 border border-[#f59e0b]/30 px-4 py-2.5 flex items-center gap-2 text-[11px] font-mono text-[#f59e0b]">
+        <Info className="w-3.5 h-3.5 shrink-0" />
+        <span>Simulated data — frontendnimbuz.vercel.app has no WebRTC/telemetry backend to source real ping data from.</span>
+      </div>
+
       {/* Header Banner */}
       <div className="card-panel rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
