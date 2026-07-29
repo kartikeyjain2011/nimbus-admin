@@ -1,66 +1,60 @@
 @import "tailwindcss";
 
 :root {
-  --bg-void: #090a0f;
-  --bg-card: #121420;
-  --bg-card-hover: #191c2c;
-  --border-line: #222638;
-  --border-cyan: rgba(0, 240, 255, 0.3);
-  --cyan: #00f0ff;
-  --cyan-glow: rgba(0, 240, 255, 0.25);
-  --emerald: #10b981;
-  --amber: #f59e0b;
-  --rose: #f43f5e;
-  --purple: #a855f7;
-  --text-ink: #f3f4f6;
-  --text-muted: #8e96ab;
+  --bg-void: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f4f4f5;
+  --border-line: #e4e4e7;
+  --border-dark: #09090b;
+  --text-ink: #09090b;
+  --text-muted: #71717a;
 }
 
 body {
-  background-color: var(--bg-void);
-  color: var(--text-ink);
+  background-color: #ffffff;
+  color: #09090b;
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
 }
 
-/* Custom Utilities & Components */
+/* Modern High-Contrast Black & White Utilities & Card Components */
 .bg-void {
-  background-color: #090a0f;
+  background-color: #ffffff;
 }
 
 .bg-card-dark {
-  background-color: #121420;
+  background-color: #ffffff;
 }
 
 .card-panel {
-  background: linear-gradient(180deg, rgba(18, 20, 32, 0.9) 0%, rgba(13, 15, 25, 0.95) 100%);
-  border: 1px solid #222638;
-  backdrop-filter: blur(12px);
+  background-color: #ffffff;
+  border: 1px solid #e4e4e7;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 }
 
 .card-panel-hover:hover {
-  border-color: rgba(0, 240, 255, 0.4);
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+  border-color: #09090b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .shadow-cyan-glow {
-  box-shadow: 0 0 25px rgba(0, 240, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .border-line {
-  border-color: #222638;
+  border-color: #e4e4e7;
 }
 
 .text-cyan {
-  color: #00f0ff;
+  color: #09090b;
 }
 
 .bg-cyan {
-  background-color: #00f0ff;
+  background-color: #09090b;
 }
 
 .border-cyan-accent {
-  border-color: rgba(0, 240, 255, 0.4);
+  border-color: #09090b;
 }
 
 /* Scrollbars */
@@ -69,14 +63,14 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #090a0f;
+  background: #ffffff;
 }
 ::-webkit-scrollbar-thumb {
-  background: #222638;
+  background: #d4d4d8;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00f0ff;
+  background: #09090b;
 }
 
 /* Signal Animations */
@@ -86,8 +80,8 @@ body {
     transform: scale(1);
   }
   50% {
-    opacity: 0.4;
-    transform: scale(0.95);
+    opacity: 0.5;
+    transform: scale(0.96);
   }
 }
 
@@ -107,4 +101,3 @@ body {
 .animate-scan {
   animation: scanline 8s linear infinite;
 }
-
