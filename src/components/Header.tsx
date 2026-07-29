@@ -1,15 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Bell, Globe, RefreshCw, Server, User, Wifi } from "lucide-react";
+import { Search, Globe, RefreshCw, Wifi, ExternalLink } from "lucide-react";
 
 export default function Header() {
   const [selectedRegion, setSelectedRegion] = useState("Mumbai (Primary)");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 800);
+    try {
+      await fetch("/api/sync", { method: "POST" });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 500);
+    }
   };
 
   return (
@@ -28,6 +34,17 @@ export default function Header() {
 
       {/* Control Actions & Status */}
       <div className="flex items-center gap-4">
+        {/* Frontend site link */}
+        <a
+          href="https://frontendnimbuz.vercel.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#00f0ff]/10 border border-[#00f0ff]/30 text-xs font-mono text-[#00f0ff] hover:bg-[#00f0ff]/20 transition-all"
+        >
+          <span>frontendnimbuz.vercel.app</span>
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
+
         {/* Region Switcher Dropdown */}
         <div className="flex items-center gap-2 bg-[#121420] border border-[#222638] rounded-xl px-3 py-1.5 text-xs text-[#f3f4f6]">
           <Globe className="w-3.5 h-3.5 text-[#00f0ff]" />
@@ -53,18 +70,10 @@ export default function Header() {
         <button
           onClick={handleRefresh}
           className="p-2 rounded-xl bg-[#121420] border border-[#222638] hover:border-[#00f0ff]/40 text-[#8e96ab] hover:text-[#00f0ff] transition-colors cursor-pointer"
-          title="Refresh Telemetry Data"
+          title="Sync Telemetry & Clerk Data"
         >
           <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-[#00f0ff]" : ""}`} />
         </button>
-
-        {/* Notifications */}
-        <div className="relative">
-          <button className="p-2 rounded-xl bg-[#121420] border border-[#222638] hover:border-[#00f0ff]/40 text-[#8e96ab] hover:text-[#f3f4f6] transition-colors relative cursor-pointer">
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#00f0ff] ring-2 ring-[#0d0f19]" />
-          </button>
-        </div>
 
         {/* Admin Profile */}
         <div className="flex items-center gap-3 pl-2 border-l border-[#222638]">

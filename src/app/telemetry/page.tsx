@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Activity, Zap, Radio, Globe, Shield, RefreshCw, BarChart2, CheckCircle2 } from "lucide-react";
+import { Radio, CheckCircle2 } from "lucide-react";
 
 export default function TelemetryPage() {
   const [pingData, setPingData] = useState<number[]>([11, 10, 12, 11, 9, 11, 13, 11, 10, 11, 12, 11, 10, 11]);

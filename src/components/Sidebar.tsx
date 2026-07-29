@@ -12,7 +12,6 @@ import {
   Settings, 
   ShieldCheck,
   Zap,
-  Globe,
   Radio
 } from "lucide-react";
 

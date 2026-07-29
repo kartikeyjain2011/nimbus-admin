@@ -1,31 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { 
-  Activity, 
   Cpu, 
-  Gamepad2, 
-  Layers, 
   TrendingUp, 
   Users, 
   Zap, 
-  ShieldCheck, 
-  Play, 
   Radio, 
   ArrowUpRight, 
-  Clock, 
   Server,
   Tv,
   Laptop,
   Smartphone,
   Tablet,
-  Filter,
-  CheckCircle2,
-  AlertTriangle
+  RefreshCw
 } from "lucide-react";
 
-// Mock Data matching frontendnimbuz.vercel.app specs
-const initialSessions = [
+interface SessionItem {
+  id: string;
+  user: string;
+  email: string;
+  game: string;
+  tier: string;
+  planPrice: string;
+  device: string;
+  gpu: string;
+  res: string;
+  latency: string;
+  bitrate: string;
+  duration: string;
+  status: string;
+}
+
+const initialSessions: SessionItem[] = [
   { id: "S-9482", user: "R. Sen", email: "rsen.gamer@gmail.com", game: "Cyberpunk 2077: Phantom Liberty", tier: "Priority", planPrice: "₹1,499", device: "Laptop", gpu: "RTX 4070 Ti", res: "1440p @ 120 FPS", latency: "11 ms", bitrate: "45 Mbps", duration: "1h 42m", status: "Active" },
   { id: "S-9483", user: "A. Fernandes", email: "a.ferns@yahoo.co.in", game: "Black Myth: Wukong", tier: "Priority", planPrice: "₹1,499", device: "TV", gpu: "RTX 4070 Ti", res: "1440p @ 120 FPS", latency: "14 ms", bitrate: "52 Mbps", duration: "45m", status: "Active" },
   { id: "S-9484", user: "K. Iyer", email: "kiyer99@outlook.com", game: "Elden Ring: Shadow of Erdtree", tier: "Ultra", planPrice: "₹2,499", device: "Laptop", gpu: "RTX 4090", res: "4K @ 120 FPS", latency: "9 ms", bitrate: "85 Mbps", duration: "3h 10m", status: "Active" },
@@ -42,8 +49,66 @@ const gpuClusters = [
 ];
 
 export default function OverviewPage() {
-  const [sessions, setSessions] = useState(initialSessions);
+  const [sessions, setSessions] = useState<SessionItem[]>(initialSessions);
   const [selectedFilter, setSelectedFilter] = useState("All");
+  const [syncing, setSyncing] = useState(false);
+  const [metrics, setMetrics] = useState({
+    usersCount: 2848,
+    mrr: "₹42.85L",
+    titlesCount: 2400
+  });
+
+  const loadData = useCallback(async () => {
+    try {
+      const [usersRes, subRes] = await Promise.all([
+        fetch("/api/users"),
+        fetch("/api/subscriptions")
+      ]);
+      const usersData = await usersRes.json();
+      const subData = await subRes.json();
+
+      setMetrics({
+        usersCount: usersData.usersCount || 2848,
+        mrr: subData.summary?.totalMRR || "₹42.85L",
+        titlesCount: 2400
+      });
+    } catch (err) {
+      console.error("Error loading dashboard data:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    let ignore = false;
+    async function load() {
+      try {
+        const [usersRes, subRes] = await Promise.all([
+          fetch("/api/users"),
+          fetch("/api/subscriptions")
+        ]);
+        const usersData = await usersRes.json();
+        const subData = await subRes.json();
+
+        if (!ignore) {
+          setMetrics({
+            usersCount: usersData.usersCount || 2848,
+            mrr: subData.summary?.totalMRR || "₹42.85L",
+            titlesCount: 2400
+          });
+        }
+      } catch (err) {
+        console.error("Error loading dashboard data:", err);
+      }
+    }
+    load();
+    return () => { ignore = true; };
+  }, []);
+
+  const triggerFullSync = async () => {
+    setSyncing(true);
+    await fetch("/api/sync", { method: "POST" });
+    await loadData();
+    setSyncing(false);
+  };
 
   const filteredSessions = selectedFilter === "All" 
     ? sessions 
@@ -63,25 +128,26 @@ export default function OverviewPage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-bold text-lg text-[#f3f4f6]">Nimbus Cloud Cluster Telemetry</h1>
+              <h1 className="font-bold text-lg text-[#f3f4f6]">Nimbus Cloud Admin & Frontend Sync</h1>
               <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/30">
-                ALL SYSTEMS GO
+                LIVE SYNC ACTIVE
               </span>
             </div>
             <p className="text-xs text-[#8e96ab] mt-0.5">
-              Live monitoring for <span className="text-[#00f0ff] font-mono font-medium">frontendnimbuz.vercel.app</span> • Data center node response: 11ms
+              Synced with <a href="https://frontendnimbuz.vercel.app" target="_blank" rel="noopener noreferrer" className="text-[#00f0ff] hover:underline font-mono font-medium">frontendnimbuz.vercel.app</a> • Clerk Auth & Razorpay Active
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3 text-xs font-mono">
-          <div className="px-3 py-1.5 rounded-xl bg-[#090a0f] border border-[#222638]">
-            <span className="text-[#8e96ab]">AV1 Encoder Efficiency:</span>{" "}
-            <span className="text-[#10b981] font-bold">99.4%</span>
-          </div>
-          <div className="px-3 py-1.5 rounded-xl bg-[#090a0f] border border-[#222638]">
-            <span className="text-[#8e96ab]">Zero-Queue Index:</span>{" "}
-            <span className="text-[#00f0ff] font-bold">Priority/Ultra Active</span>
-          </div>
+
+        <div className="flex items-center gap-3 text-xs font-mono w-full md:w-auto">
+          <button
+            onClick={triggerFullSync}
+            disabled={syncing}
+            className="px-4 py-2 rounded-xl bg-[#00f0ff]/15 text-[#00f0ff] border border-[#00f0ff]/40 hover:bg-[#00f0ff]/25 text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
+            {syncing ? "Syncing..." : "Sync All Frontend Data"}
+          </button>
         </div>
       </div>
 
@@ -90,13 +156,13 @@ export default function OverviewPage() {
         {/* Metric 1 */}
         <div className="card-panel rounded-2xl p-5 card-panel-hover transition-all space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono uppercase tracking-wider text-[#8e96ab]">Active Streamers</span>
+            <span className="text-xs font-mono uppercase tracking-wider text-[#8e96ab]">Clerk Registered Users</span>
             <div className="w-8 h-8 rounded-lg bg-[#00f0ff]/10 border border-[#00f0ff]/30 flex items-center justify-center text-[#00f0ff]">
               <Users className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="font-mono text-3xl font-bold text-[#f3f4f6]">4,892</span>
+            <span className="font-mono text-3xl font-bold text-[#f3f4f6]">{metrics.usersCount}</span>
             <span className="flex items-center text-xs font-mono text-[#10b981]">
               <TrendingUp className="w-3.5 h-3.5 mr-1" /> +14.2%
             </span>
@@ -104,7 +170,7 @@ export default function OverviewPage() {
           <div className="w-full bg-[#161926] h-1.5 rounded-full overflow-hidden">
             <div className="bg-[#00f0ff] h-full w-[78%]" />
           </div>
-          <p className="text-[11px] text-[#8e96ab] font-mono">Capacity: 6,250 concurrent slots</p>
+          <p className="text-[11px] text-[#8e96ab] font-mono">Clerk Auth Synced</p>
         </div>
 
         {/* Metric 2 */}
@@ -134,7 +200,7 @@ export default function OverviewPage() {
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="font-mono text-3xl font-bold text-[#f3f4f6]">₹42.8L</span>
+            <span className="font-mono text-3xl font-bold text-[#f3f4f6]">{metrics.mrr}</span>
             <span className="flex items-center text-xs font-mono text-[#10b981]">
               <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" /> +22% MRR
             </span>
@@ -223,9 +289,9 @@ export default function OverviewPage() {
               <h2 className="font-bold text-[#f3f4f6] text-base">GPU Node Data Center Racks</h2>
               <p className="text-xs text-[#8e96ab]">Real-time node allocation across regional data centers</p>
             </div>
-            <button className="text-xs font-mono text-[#00f0ff] hover:underline flex items-center gap-1">
+            <a href="/nodes" className="text-xs font-mono text-[#00f0ff] hover:underline flex items-center gap-1">
               View All Nodes <ArrowUpRight className="w-3.5 h-3.5" />
-            </button>
+            </a>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

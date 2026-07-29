@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Cpu, Server, Activity, Flame, ShieldAlert, CheckCircle, RefreshCw, Power } from "lucide-react";
+import { Cpu, RefreshCw, Power } from "lucide-react";
 
 const initialRacks = [
   { id: "RACK-MUM-01", dc: "Mumbai Primary DC", type: "NVIDIA RTX 4090 (24GB VRAM)", activeCount: 64, totalCount: 64, load: 96, temp: "68°C", fanSpeed: "82%", status: "Online" },
