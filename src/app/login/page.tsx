@@ -2,17 +2,19 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, Eye, EyeOff, KeyRound, AlertCircle, ArrowRight, CheckCircle2, Lock } from "lucide-react";
+import { SignIn } from "@clerk/nextjs";
+import { ShieldCheck, Eye, EyeOff, KeyRound, AlertCircle, ArrowRight, CheckCircle2, Lock, UserCheck } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [authTab, setAuthTab] = useState<"clerk" | "custom">("clerk");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleCustomLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -69,103 +71,141 @@ export default function LoginPage() {
 
         <div className="flex items-center gap-2 text-xs font-mono text-zinc-600">
           <ShieldCheck className="w-4 h-4 text-black" />
-          <span>Encrypted Session • Cloud Gateway</span>
+          <span>Encrypted Clerk Auth • Cloud Gateway</span>
         </div>
       </header>
 
       {/* Main Login Box */}
-      <main className="w-full max-w-md my-auto py-8">
-        <div className="bg-white border-2 border-black rounded-2xl p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-6">
-          <div className="space-y-2 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center mx-auto mb-3">
-              <Lock className="w-6 h-6" />
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight text-black font-mono">
-              Super Admin Gateway
-            </h1>
-            <p className="text-xs text-zinc-600 font-mono">
-              Sign in with your Super Admin credentials to access the telemetry & operations console.
-            </p>
-          </div>
-
-          {error && (
-            <div className="p-3.5 rounded-xl bg-zinc-100 border-2 border-black text-black text-xs font-mono flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-black" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-mono font-bold text-black uppercase tracking-wider block">
-                Super Admin Email
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@nimbuz.cloud"
-                  className="w-full bg-zinc-50 border-2 border-zinc-300 focus:border-black focus:bg-white focus:outline-none rounded-xl px-4 py-2.5 text-xs text-black font-mono transition-all"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-mono font-bold text-black uppercase tracking-wider block">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full bg-zinc-50 border-2 border-zinc-300 focus:border-black focus:bg-white focus:outline-none rounded-xl px-4 py-2.5 pr-10 text-xs text-black font-mono transition-all"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-black cursor-pointer"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-xl bg-black text-white hover:bg-zinc-800 text-xs font-mono font-bold transition-all cursor-pointer flex items-center justify-center gap-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] disabled:opacity-50"
-            >
-              {loading ? "Authenticating..." : "Sign In to Admin Dashboard"}
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
-
-          {/* Quick Demo Credential Helper */}
-          <div className="pt-4 border-t border-zinc-200 space-y-3">
-            <button
-              type="button"
-              onClick={handleAutofill}
-              className="w-full py-2 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 border border-zinc-300 text-black text-xs font-mono font-semibold transition-all cursor-pointer flex items-center justify-center gap-2"
-            >
-              <KeyRound className="w-3.5 h-3.5" />
-              <span>Auto-fill Super Admin Credentials</span>
-            </button>
-
-            <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-[11px] font-mono text-zinc-600 space-y-1">
-              <div className="flex items-center gap-1.5 text-black font-bold">
-                <CheckCircle2 className="w-3.5 h-3.5 text-black" />
-                Default Test Credentials:
-              </div>
-              <div>• Email: <code className="bg-zinc-200 px-1 py-0.5 rounded text-black">admin@nimbuz.cloud</code></div>
-              <div>• Password: <code className="bg-zinc-200 px-1 py-0.5 rounded text-black">admin123</code></div>
-            </div>
-          </div>
+      <main className="w-full max-w-md my-auto py-8 space-y-6">
+        {/* Auth Method Switcher Tabs */}
+        <div className="flex items-center justify-center p-1 bg-zinc-100 rounded-xl border border-zinc-300 text-xs font-mono">
+          <button
+            type="button"
+            onClick={() => setAuthTab("clerk")}
+            className={`flex-1 py-2 rounded-lg font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              authTab === "clerk"
+                ? "bg-black text-white shadow-sm"
+                : "text-zinc-600 hover:text-black"
+            }`}
+          >
+            <UserCheck className="w-3.5 h-3.5" />
+            Clerk Auth Sign In
+          </button>
+          <button
+            type="button"
+            onClick={() => setAuthTab("custom")}
+            className={`flex-1 py-2 rounded-lg font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              authTab === "custom"
+                ? "bg-black text-white shadow-sm"
+                : "text-zinc-600 hover:text-black"
+            }`}
+          >
+            <Lock className="w-3.5 h-3.5" />
+            Direct Admin Login
+          </button>
         </div>
+
+        {authTab === "clerk" ? (
+          <div className="flex justify-center border-2 border-black rounded-2xl p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
+            <SignIn 
+              routing="hash"
+              forceRedirectUrl="/"
+              fallbackRedirectUrl="/"
+            />
+          </div>
+        ) : (
+          <div className="bg-white border-2 border-black rounded-2xl p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-6">
+            <div className="space-y-2 text-center">
+              <div className="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center mx-auto mb-3">
+                <Lock className="w-6 h-6" />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight text-black font-mono">
+                Super Admin Gateway
+              </h1>
+              <p className="text-xs text-zinc-600 font-mono">
+                Sign in with your Super Admin credentials to access the telemetry & operations console.
+              </p>
+            </div>
+
+            {error && (
+              <div className="p-3.5 rounded-xl bg-zinc-100 border-2 border-black text-black text-xs font-mono flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-black" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleCustomLogin} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-mono font-bold text-black uppercase tracking-wider block">
+                  Super Admin Email
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@nimbuz.cloud"
+                    className="w-full bg-zinc-50 border-2 border-zinc-300 focus:border-black focus:bg-white focus:outline-none rounded-xl px-4 py-2.5 text-xs text-black font-mono transition-all"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-mono font-bold text-black uppercase tracking-wider block">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full bg-zinc-50 border-2 border-zinc-300 focus:border-black focus:bg-white focus:outline-none rounded-xl px-4 py-2.5 pr-10 text-xs text-black font-mono transition-all"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-black cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 rounded-xl bg-black text-white hover:bg-zinc-800 text-xs font-mono font-bold transition-all cursor-pointer flex items-center justify-center gap-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] disabled:opacity-50"
+              >
+                {loading ? "Authenticating..." : "Sign In to Admin Dashboard"}
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </form>
+
+            {/* Quick Demo Credential Helper */}
+            <div className="pt-4 border-t border-zinc-200 space-y-3">
+              <button
+                type="button"
+                onClick={handleAutofill}
+                className="w-full py-2 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 border border-zinc-300 text-black text-xs font-mono font-semibold transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>Auto-fill Super Admin Credentials</span>
+              </button>
+
+              <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-[11px] font-mono text-zinc-600 space-y-1">
+                <div className="flex items-center gap-1.5 text-black font-bold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-black" />
+                  Default Test Credentials:
+                </div>
+                <div>• Email: <code className="bg-zinc-200 px-1 py-0.5 rounded text-black">admin@nimbuz.cloud</code></div>
+                <div>• Password: <code className="bg-zinc-200 px-1 py-0.5 rounded text-black">admin123</code></div>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Footer */}
