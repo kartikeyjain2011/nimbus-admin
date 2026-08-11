@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { CheckCircle2, RefreshCw, Plus, X, RotateCcw, AlertTriangle, ShieldAlert, CreditCard } from "lucide-react";
+import { useState, useEffect, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { CheckCircle2, RefreshCw, Plus, X, RotateCcw, AlertTriangle, CreditCard, Search } from "lucide-react";
 
 interface SubscriptionPlan {
   id: string;
@@ -27,7 +28,12 @@ interface RazorpayTransaction {
   subscriptionStatus?: "Active" | "Cancelled" | "Refunded";
 }
 
-export default function SubscriptionsPage() {
+function SubscriptionsPageContent() {
+  const searchParams = useSearchParams();
+  const urlSearch = searchParams.get("search") || "";
+  const [userSearch, setUserSearch] = useState<string | null>(null);
+  const search = userSearch ?? urlSearch;
+
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [transactions, setTransactions] = useState<RazorpayTransaction[]>([]);
   const [summary, setSummary] = useState({ totalMRR: "₹42,85,000", totalSubscribers: 2848 });
@@ -179,7 +185,18 @@ export default function SubscriptionsPage() {
   };
 
   const filteredTransactions = transactions.filter(tx => {
+    const q = search.toLowerCase();
+    const matchesSearch = 
+      tx.txId.toLowerCase().includes(q) ||
+      tx.user.toLowerCase().includes(q) ||
+      tx.email.toLowerCase().includes(q) ||
+      tx.clerkId.toLowerCase().includes(q) ||
+      tx.plan.toLowerCase().includes(q) ||
+      tx.amount.toLowerCase().includes(q) ||
+      tx.method.toLowerCase().includes(q);
+
     const status = String(tx.subscriptionStatus || tx.status || "Success");
+    if (!matchesSearch) return false;
     if (filterStatus === "All") return true;
     if (filterStatus === "Active") return status === "Success" || status === "Active";
     if (filterStatus === "Cancelled") return status === "Cancelled";
@@ -188,7 +205,7 @@ export default function SubscriptionsPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       {/* Executive Header Banner */}
       <div className="bg-white rounded-2xl p-6 border border-zinc-200/80 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -292,6 +309,26 @@ export default function SubscriptionsPage() {
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
+            {/* Search Input for Transactions */}
+            <div className="relative w-full sm:w-64">
+              <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setUserSearch(e.target.value)}
+                placeholder="Search transaction ID, user, email, plan..."
+                className="w-full bg-zinc-50/80 border border-zinc-200/80 focus:border-zinc-400 focus:bg-white focus:outline-none rounded-xl pl-9 pr-8 py-2 text-xs text-zinc-900 placeholder-zinc-400 font-normal transition-all"
+              />
+              {search && (
+                <button 
+                  onClick={() => setUserSearch("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
             {/* Status Filter Tabs */}
             <div className="flex items-center gap-1 bg-zinc-100/80 border border-zinc-200/70 p-1 rounded-xl text-xs">
               {(["All", "Active", "Cancelled", "Refunded"] as const).map((status) => (
@@ -338,91 +375,99 @@ export default function SubscriptionsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100">
-                {filteredTransactions.map((tx) => {
-                  const currentStatus = String(tx.subscriptionStatus || tx.status || "Success");
-                  const isActive = currentStatus === "Success" || currentStatus === "Active";
-                  const isCancelled = currentStatus === "Cancelled";
-                  const isRefunded = currentStatus === "Refunded";
+                {filteredTransactions.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-8 text-center text-zinc-500 text-xs font-normal">
+                      No transactions match &ldquo;{search}&rdquo;.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredTransactions.map((tx) => {
+                    const currentStatus = String(tx.subscriptionStatus || tx.status || "Success");
+                    const isActive = currentStatus === "Success" || currentStatus === "Active";
+                    const isCancelled = currentStatus === "Cancelled";
+                    const isRefunded = currentStatus === "Refunded";
 
-                  return (
-                    <tr key={tx.txId} className="hover:bg-zinc-50/60 transition-colors">
-                      <td className="py-3.5 px-4 font-semibold text-zinc-900">{tx.txId}</td>
-                      <td className="py-3.5 px-4">
-                        <div className="text-zinc-900 font-semibold">{tx.user}</div>
-                        <div className="text-[11px] text-zinc-400 font-normal">{tx.email}</div>
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <div className="text-zinc-900 font-medium">{tx.plan}</div>
-                        <div className="text-[11px] text-zinc-500 font-semibold">{tx.amount}</div>
-                      </td>
-                      <td className="py-3.5 px-4 text-zinc-600 font-normal">{tx.method}</td>
-                      <td className="py-3.5 px-4 text-zinc-500 font-normal">{tx.date}</td>
-                      <td className="py-3.5 px-4">
-                        {isActive && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            Active
-                          </span>
-                        )}
-                        {isCancelled && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-300">
-                            <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
-                            Cancelled
-                          </span>
-                        )}
-                        {isRefunded && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
-                            <RotateCcw className="w-3 h-3 text-rose-600" />
-                            Refunded
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                    return (
+                      <tr key={tx.txId} className="hover:bg-zinc-50/60 transition-colors">
+                        <td className="py-3.5 px-4 font-semibold text-zinc-900 font-mono">{tx.txId}</td>
+                        <td className="py-3.5 px-4">
+                          <div className="text-zinc-900 font-semibold">{tx.user}</div>
+                          <div className="text-[11px] text-zinc-400 font-normal">{tx.email}</div>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <div className="text-zinc-900 font-medium">{tx.plan}</div>
+                          <div className="text-[11px] text-zinc-500 font-semibold">{tx.amount}</div>
+                        </td>
+                        <td className="py-3.5 px-4 text-zinc-600 font-normal">{tx.method}</td>
+                        <td className="py-3.5 px-4 text-zinc-500 font-normal">{tx.date}</td>
+                        <td className="py-3.5 px-4">
                           {isActive && (
-                            <button
-                              onClick={() => handleCancelSubscription(tx.txId, tx.user)}
-                              disabled={isProcessing}
-                              className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[11px] font-medium transition-all cursor-pointer shadow-xs disabled:opacity-50"
-                              title="Cancel subscription for this user"
-                            >
-                              Cancel Sub
-                            </button>
-                          )}
-
-                          {isCancelled && (
-                            <button
-                              onClick={() => handleActivateSubscription(tx.txId, tx.user)}
-                              disabled={isProcessing}
-                              className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-medium transition-all cursor-pointer shadow-xs disabled:opacity-50"
-                              title="Reactivate subscription"
-                            >
-                              Activate Sub
-                            </button>
-                          )}
-
-                          {!isRefunded && (
-                            <button
-                              onClick={() => setRefundingTx(tx)}
-                              disabled={isProcessing}
-                              className="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[11px] font-medium transition-all cursor-pointer shadow-xs disabled:opacity-50 flex items-center gap-1"
-                              title="Process a full refund via Razorpay"
-                            >
-                              <RotateCcw className="w-3 h-3" />
-                              Refund
-                            </button>
-                          )}
-
-                          {isRefunded && (
-                            <span className="text-[11px] text-zinc-400 font-normal italic">
-                              Fully Refunded
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              Active
                             </span>
                           )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                          {isCancelled && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-300">
+                              <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
+                              Cancelled
+                            </span>
+                          )}
+                          {isRefunded && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
+                              <RotateCcw className="w-3 h-3 text-rose-600" />
+                              Refunded
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {isActive && (
+                              <button
+                                onClick={() => handleCancelSubscription(tx.txId, tx.user)}
+                                disabled={isProcessing}
+                                className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[11px] font-medium transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                                title="Cancel subscription for this user"
+                              >
+                                Cancel Sub
+                              </button>
+                            )}
+
+                            {isCancelled && (
+                              <button
+                                onClick={() => handleActivateSubscription(tx.txId, tx.user)}
+                                disabled={isProcessing}
+                                className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-medium transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                                title="Reactivate subscription"
+                              >
+                                Activate Sub
+                              </button>
+                            )}
+
+                            {!isRefunded && (
+                              <button
+                                onClick={() => setRefundingTx(tx)}
+                                disabled={isProcessing}
+                                className="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[11px] font-medium transition-all cursor-pointer shadow-xs disabled:opacity-50 flex items-center gap-1"
+                                title="Process a full refund via Razorpay"
+                              >
+                                <RotateCcw className="w-3 h-3" />
+                                Refund
+                              </button>
+                            )}
+
+                            {isRefunded && (
+                              <span className="text-[11px] text-zinc-400 font-normal italic">
+                                Fully Refunded
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -454,7 +499,7 @@ export default function SubscriptionsPage() {
             <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200/70 space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="text-zinc-500">Transaction ID:</span>
-                <span className="font-semibold text-zinc-900">{refundingTx.txId}</span>
+                <span className="font-semibold text-zinc-900 font-mono">{refundingTx.txId}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-500">Subscriber:</span>
@@ -494,5 +539,17 @@ export default function SubscriptionsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function SubscriptionsPage() {
+  return (
+    <Suspense fallback={
+      <div className="py-12 text-center text-xs text-zinc-500 flex items-center justify-center gap-2">
+        <RefreshCw className="w-4 h-4 animate-spin text-zinc-800" /> Loading Subscriptions...
+      </div>
+    }>
+      <SubscriptionsPageContent />
+    </Suspense>
   );
 }

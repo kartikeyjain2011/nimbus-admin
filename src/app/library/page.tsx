@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Search, Play, HardDrive, CheckCircle, Flame, RefreshCw, ShoppingBag } from "lucide-react";
+import { useState, useEffect, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { Search, Play, HardDrive, CheckCircle, Flame, RefreshCw, ShoppingBag, X } from "lucide-react";
 
 interface GameItem {
   id: number;
@@ -17,10 +18,14 @@ interface GameItem {
   purchasesCount: number;
 }
 
-export default function GameLibraryPage() {
+function GameLibraryPageContent() {
+  const searchParams = useSearchParams();
+  const urlSearch = searchParams.get("search") || "";
+  const [userSearch, setUserSearch] = useState<string | null>(null);
+  const search = userSearch ?? urlSearch;
+
   const [games, setGames] = useState<GameItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("All");
   const [summary, setSummary] = useState({ totalTitles: 0, totalStreaming: 0, totalPurchases: 0 });
 
@@ -65,7 +70,14 @@ export default function GameLibraryPage() {
   }, []);
 
   const filteredGames = games.filter(g => {
-    const matchesSearch = g.title.toLowerCase().includes(search.toLowerCase()) || g.publisher.toLowerCase().includes(search.toLowerCase());
+    const q = search.toLowerCase();
+    const matchesSearch = 
+      g.title.toLowerCase().includes(q) || 
+      g.publisher.toLowerCase().includes(q) ||
+      g.genre.toLowerCase().includes(q) ||
+      g.minTier.toLowerCase().includes(q) ||
+      String(g.id).includes(q);
+
     const matchesGenre = selectedGenre === "All" || g.genre === selectedGenre;
     return matchesSearch && matchesGenre;
   });
@@ -113,10 +125,18 @@ export default function GameLibraryPage() {
           <input
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search title, developer, or genre..."
-            className="w-full bg-zinc-50 border border-zinc-200 focus:border-black focus:bg-white focus:outline-none rounded-xl pl-9 pr-4 py-2 text-xs text-black font-mono"
+            onChange={(e) => setUserSearch(e.target.value)}
+            placeholder="Search game title, developer, genre, min tier..."
+            className="w-full bg-zinc-50 border border-zinc-200 focus:border-black focus:bg-white focus:outline-none rounded-xl pl-9 pr-8 py-2 text-xs text-black font-mono"
           />
+          {search && (
+            <button 
+              onClick={() => setUserSearch("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-black"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto text-xs font-mono">
@@ -140,6 +160,10 @@ export default function GameLibraryPage() {
       {loading ? (
         <div className="py-12 text-center text-xs font-mono text-zinc-500 flex items-center justify-center gap-2">
           <RefreshCw className="w-4 h-4 animate-spin text-black" /> Loading game catalog...
+        </div>
+      ) : filteredGames.length === 0 ? (
+        <div className="py-12 text-center text-xs font-mono text-zinc-500">
+          No games found matching &ldquo;{search}&rdquo;.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -186,5 +210,17 @@ export default function GameLibraryPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function GameLibraryPage() {
+  return (
+    <Suspense fallback={
+      <div className="py-12 text-center text-xs font-mono text-zinc-500 flex items-center justify-center gap-2">
+        <RefreshCw className="w-4 h-4 animate-spin text-black" /> Loading Game Library...
+      </div>
+    }>
+      <GameLibraryPageContent />
+    </Suspense>
   );
 }
