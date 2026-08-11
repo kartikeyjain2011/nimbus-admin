@@ -1,5 +1,12 @@
 import { NextResponse } from "next/server";
-import { getStoreUsers, updateUserTier, addUserGamePurchase, mergeClerkUsers } from "@/lib/dataStore";
+import { 
+  getStoreUsers, 
+  updateUserTier, 
+  addUserGamePurchase, 
+  mergeClerkUsers,
+  cancelUserSubscription,
+  activateUserSubscription
+} from "@/lib/dataStore";
 
 export async function GET() {
   try {
@@ -59,6 +66,38 @@ export async function POST(req: Request) {
       }
 
       return NextResponse.json({ success: true, user: updatedUser, message: `Updated tier to ${tier}` });
+    }
+
+    if (action === "cancel_subscription" && userId) {
+      const updatedUser = cancelUserSubscription(userId);
+      if (secretKey && secretKey.startsWith("sk_") && updatedUser?.clerkId) {
+        try {
+          const { createClerkClient } = await import("@clerk/nextjs/server");
+          const clerk = createClerkClient({ secretKey });
+          await clerk.users.updateUserMetadata(updatedUser.clerkId, {
+            publicMetadata: { subscriptionStatus: "Cancelled" }
+          });
+        } catch (err) {
+          console.warn("Failed to push metadata to Clerk:", err);
+        }
+      }
+      return NextResponse.json({ success: true, user: updatedUser, message: "Subscription cancelled successfully" });
+    }
+
+    if (action === "activate_subscription" && userId) {
+      const updatedUser = activateUserSubscription(userId);
+      if (secretKey && secretKey.startsWith("sk_") && updatedUser?.clerkId) {
+        try {
+          const { createClerkClient } = await import("@clerk/nextjs/server");
+          const clerk = createClerkClient({ secretKey });
+          await clerk.users.updateUserMetadata(updatedUser.clerkId, {
+            publicMetadata: { subscriptionStatus: "Active" }
+          });
+        } catch (err) {
+          console.warn("Failed to push metadata to Clerk:", err);
+        }
+      }
+      return NextResponse.json({ success: true, user: updatedUser, message: "Subscription activated successfully" });
     }
 
     if (action === "add_game_purchase" && userId && gameTitle) {

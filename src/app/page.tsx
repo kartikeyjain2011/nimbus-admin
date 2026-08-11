@@ -14,7 +14,7 @@ import {
   Smartphone,
   Tablet,
   RefreshCw,
-  ShieldCheck
+  Activity
 } from "lucide-react";
 
 interface SessionItem {
@@ -120,200 +120,193 @@ export default function OverviewPage() {
   };
 
   return (
-    <div className="space-y-6 font-sans">
-      {/* Top Banner Alert / Status */}
-      <div className="bg-white rounded-2xl p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center shrink-0">
-            <Radio className="w-5 h-5 animate-pulse" />
+    <div className="space-y-6">
+      {/* Executive Clean Header */}
+      <div className="bg-white rounded-2xl p-6 border border-zinc-200/80 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-11 h-11 rounded-xl bg-zinc-900 text-white flex items-center justify-center shrink-0 shadow-xs">
+            <Activity className="w-5.5 h-5.5 text-zinc-100" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-bold text-lg text-black font-mono">Super Admin Dashboard & Live Sync</h1>
-              <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-black text-white">
-                LIVE SYNC ACTIVE
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="font-semibold text-xl text-zinc-900 tracking-tight">Dashboard Overview</h1>
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Live Sync Active
               </span>
             </div>
-            <p className="text-xs text-zinc-600 mt-0.5 font-mono">
-              Synced with <a href="https://frontendnimbuz.vercel.app" target="_blank" rel="noopener noreferrer" className="text-black underline font-bold">frontendnimbuz.vercel.app</a> • Clerk Auth & Razorpay Sync Active
+            <p className="text-xs text-zinc-500 mt-1 font-normal">
+              Real-time monitoring for stream telemetry, GPU node performance, and subscriber MRR metrics.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 text-xs font-mono w-full md:w-auto">
+        <div className="flex items-center gap-3 shrink-0 w-full md:w-auto">
           <button
             onClick={triggerFullSync}
             disabled={syncing}
-            className="px-4 py-2 rounded-xl bg-black text-white hover:bg-zinc-800 text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-2 border border-black shadow-sm disabled:opacity-50"
+            className="w-full md:w-auto px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-medium transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs disabled:opacity-50"
           >
-            <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${syncing ? "animate-spin" : ""}`} />
             {syncing ? "Syncing..." : "Sync All Frontend Data"}
           </button>
         </div>
       </div>
 
-      {/* Top Key Metrics Cards */}
+      {/* Modern KPI Metrics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1 */}
-        <div className="bg-white rounded-2xl p-5 border border-zinc-200 hover:border-black transition-all space-y-3 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-zinc-200/80 hover:border-zinc-300 hover:shadow-xs transition-all space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-500">Clerk Registered Users</span>
-            <div className="w-8 h-8 rounded-lg bg-zinc-100 border border-zinc-300 flex items-center justify-center text-black">
+            <span className="text-xs font-medium text-zinc-500">Registered Users</span>
+            <div className="w-8 h-8 rounded-lg bg-zinc-100/80 border border-zinc-200/60 flex items-center justify-center text-zinc-700">
               <Users className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="font-mono text-3xl font-bold text-black">{metrics.usersCount}</span>
-            <span className="flex items-center text-xs font-mono text-black font-bold">
-              <TrendingUp className="w-3.5 h-3.5 mr-1" /> +14.2%
+            <span className="text-2xl font-bold tracking-tight text-zinc-900">{metrics.usersCount.toLocaleString()}</span>
+            <span className="inline-flex items-center text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+              <TrendingUp className="w-3 h-3 mr-1" /> +14.2%
             </span>
           </div>
-          <div className="w-full bg-zinc-200 h-1.5 rounded-full overflow-hidden">
-            <div className="bg-black h-full w-[78%]" />
-          </div>
-          <p className="text-[11px] text-zinc-500 font-mono">Clerk Auth Synced</p>
+          <p className="text-[11px] text-zinc-400 font-normal">Clerk Auth Synced</p>
         </div>
 
         {/* Metric 2 */}
-        <div className="bg-white rounded-2xl p-5 border border-zinc-200 hover:border-black transition-all space-y-3 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-zinc-200/80 hover:border-zinc-300 hover:shadow-xs transition-all space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-500">Round Trip Latency</span>
-            <div className="w-8 h-8 rounded-lg bg-zinc-100 border border-zinc-300 flex items-center justify-center text-black">
+            <span className="text-xs font-medium text-zinc-500">Round Trip Latency</span>
+            <div className="w-8 h-8 rounded-lg bg-zinc-100/80 border border-zinc-200/60 flex items-center justify-center text-zinc-700">
               <Zap className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="font-mono text-3xl font-bold text-black">11 <span className="text-base font-normal text-zinc-500">ms</span></span>
-            <span className="text-xs font-mono text-black font-bold">Ultra-Low Latency</span>
+            <span className="text-2xl font-bold tracking-tight text-zinc-900">11 <span className="text-sm font-normal text-zinc-500">ms</span></span>
+            <span className="text-xs font-medium text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded-md">
+              Ultra-Low
+            </span>
           </div>
-          <div className="w-full bg-zinc-200 h-1.5 rounded-full overflow-hidden">
-            <div className="bg-black h-full w-[25%]" />
-          </div>
-          <p className="text-[11px] text-zinc-500 font-mono">Mumbai Node • AV1 Stream Mode</p>
+          <p className="text-[11px] text-zinc-400 font-normal">Mumbai Node • AV1 Codec</p>
         </div>
 
         {/* Metric 3 */}
-        <div className="bg-white rounded-2xl p-5 border border-zinc-200 hover:border-black transition-all space-y-3 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-zinc-200/80 hover:border-zinc-300 hover:shadow-xs transition-all space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-500">Monthly MRR (Razorpay)</span>
-            <div className="w-8 h-8 rounded-lg bg-zinc-100 border border-zinc-300 flex items-center justify-center text-black">
+            <span className="text-xs font-medium text-zinc-500">Monthly MRR</span>
+            <div className="w-8 h-8 rounded-lg bg-zinc-100/80 border border-zinc-200/60 flex items-center justify-center text-zinc-700">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="font-mono text-3xl font-bold text-black">{metrics.mrr}</span>
-            <span className="flex items-center text-xs font-mono text-black font-bold">
-              <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" /> +22% MRR
+            <span className="text-2xl font-bold tracking-tight text-zinc-900">{metrics.mrr}</span>
+            <span className="inline-flex items-center text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+              <ArrowUpRight className="w-3 h-3 mr-0.5" /> +22%
             </span>
           </div>
-          <div className="w-full bg-zinc-200 h-1.5 rounded-full overflow-hidden">
-            <div className="bg-black h-full w-[85%]" />
-          </div>
-          <p className="text-[11px] text-zinc-500 font-mono">Basic, Pro, Premium & Ultimate</p>
+          <p className="text-[11px] text-zinc-400 font-normal">Razorpay Subscriptions</p>
         </div>
 
         {/* Metric 4 */}
-        <div className="bg-white rounded-2xl p-5 border border-zinc-200 hover:border-black transition-all space-y-3 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-zinc-200/80 hover:border-zinc-300 hover:shadow-xs transition-all space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-500">GPU Rig Utilization</span>
-            <div className="w-8 h-8 rounded-lg bg-zinc-100 border border-zinc-300 flex items-center justify-center text-black">
+            <span className="text-xs font-medium text-zinc-500">GPU Rig Utilization</span>
+            <div className="w-8 h-8 rounded-lg bg-zinc-100/80 border border-zinc-200/60 flex items-center justify-center text-zinc-700">
               <Cpu className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="font-mono text-3xl font-bold text-black">92%</span>
-            <span className="text-xs font-mono text-black font-bold">471 / 512 Rigs</span>
+            <span className="text-2xl font-bold tracking-tight text-zinc-900">92%</span>
+            <span className="text-xs font-medium text-zinc-500">471 / 512 Rigs</span>
           </div>
-          <div className="w-full bg-zinc-200 h-1.5 rounded-full overflow-hidden">
-            <div className="bg-black h-full w-[92%]" />
+          <div className="w-full bg-zinc-100 h-1.5 rounded-full overflow-hidden">
+            <div className="bg-zinc-900 h-full w-[92%]" />
           </div>
-          <p className="text-[11px] text-zinc-500 font-mono">RTX 4090 / 4070 Ti / 3060 Racks</p>
         </div>
       </div>
 
-      {/* Latency Spectrum & GPU Cluster Telemetry */}
+      {/* Middle Section: Latency Telemetry & GPU Clusters */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Latency Break Down & Bitrate Card */}
-        <div className="bg-white rounded-2xl p-6 border border-zinc-200 shadow-sm space-y-5 lg:col-span-1 flex flex-col justify-between">
+        {/* Latency Breakdown Card */}
+        <div className="bg-white rounded-2xl p-6 border border-zinc-200/80 shadow-xs lg:col-span-1 flex flex-col justify-between space-y-5">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="font-bold text-black text-base">Latency Telemetry Spectrum</h2>
-                <p className="text-xs text-zinc-500">Round trip breakdown (Device → Nimbus GPU)</p>
+                <h2 className="font-semibold text-zinc-900 text-base">Latency Telemetry</h2>
+                <p className="text-xs text-zinc-500 font-normal">Round trip breakdown (Device → GPU)</p>
               </div>
-              <span className="w-2.5 h-2.5 rounded-full bg-black animate-ping" />
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
             </div>
 
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200">
-                <div className="flex justify-between items-center text-xs font-mono mb-2">
+            <div className="space-y-3.5">
+              <div className="p-3.5 rounded-xl bg-zinc-50/70 border border-zinc-200/60 space-y-2">
+                <div className="flex justify-between items-center text-xs">
                   <span className="text-zinc-600 font-medium">Network Transit Time</span>
-                  <span className="text-black font-bold">5 ms</span>
+                  <span className="text-zinc-900 font-semibold">5 ms</span>
                 </div>
-                <div className="w-full bg-zinc-200 h-2 rounded-full overflow-hidden">
-                  <div className="bg-black h-full w-[45%]" />
+                <div className="w-full bg-zinc-200/80 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-zinc-900 h-full w-[45%]" />
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200">
-                <div className="flex justify-between items-center text-xs font-mono mb-2">
+              <div className="p-3.5 rounded-xl bg-zinc-50/70 border border-zinc-200/60 space-y-2">
+                <div className="flex justify-between items-center text-xs">
                   <span className="text-zinc-600 font-medium">GPU Render & AV1 Encode</span>
-                  <span className="text-black font-bold">4 ms</span>
+                  <span className="text-zinc-900 font-semibold">4 ms</span>
                 </div>
-                <div className="w-full bg-zinc-200 h-2 rounded-full overflow-hidden">
-                  <div className="bg-black h-full w-[36%]" />
+                <div className="w-full bg-zinc-200/80 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-zinc-900 h-full w-[36%]" />
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200">
-                <div className="flex justify-between items-center text-xs font-mono mb-2">
+              <div className="p-3.5 rounded-xl bg-zinc-50/70 border border-zinc-200/60 space-y-2">
+                <div className="flex justify-between items-center text-xs">
                   <span className="text-zinc-600 font-medium">Client Browser Decode</span>
-                  <span className="text-black font-bold">2 ms</span>
+                  <span className="text-zinc-900 font-semibold">2 ms</span>
                 </div>
-                <div className="w-full bg-zinc-200 h-2 rounded-full overflow-hidden">
-                  <div className="bg-black h-full w-[19%]" />
+                <div className="w-full bg-zinc-200/80 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-zinc-900 h-full w-[19%]" />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-zinc-200 flex items-center justify-between text-xs font-mono">
-            <span className="text-zinc-500">Target Total Ping</span>
-            <span className="text-black font-bold text-sm">11 ms</span>
+          <div className="pt-4 border-t border-zinc-100 flex items-center justify-between text-xs">
+            <span className="text-zinc-500 font-normal">Target Total Ping</span>
+            <span className="text-zinc-900 font-bold text-sm">11 ms</span>
           </div>
         </div>
 
-        {/* GPU Rig Cluster Status Grid */}
-        <div className="bg-white rounded-2xl p-6 border border-zinc-200 shadow-sm lg:col-span-2 space-y-4">
+        {/* GPU Node Data Center Racks */}
+        <div className="bg-white rounded-2xl p-6 border border-zinc-200/80 shadow-xs lg:col-span-2 space-y-5">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-bold text-black text-base">GPU Node Data Center Racks</h2>
-              <p className="text-xs text-zinc-500">Real-time node allocation across regional data centers</p>
+              <h2 className="font-semibold text-zinc-900 text-base">GPU Data Center Racks</h2>
+              <p className="text-xs text-zinc-500 font-normal">Real-time node allocation across regional data centers</p>
             </div>
-            <a href="/nodes" className="text-xs font-mono font-bold text-black hover:underline flex items-center gap-1">
+            <a href="/nodes" className="text-xs font-medium text-zinc-700 hover:text-zinc-900 hover:underline flex items-center gap-1">
               View All Nodes <ArrowUpRight className="w-3.5 h-3.5" />
             </a>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {gpuClusters.map((cluster, i) => (
-              <div key={i} className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-3 hover:border-black transition-all">
+              <div key={i} className="p-4 rounded-xl bg-zinc-50/70 border border-zinc-200/60 space-y-3 hover:border-zinc-300 transition-all">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Server className="w-4 h-4 text-black" />
-                    <span className="font-bold text-xs text-black">{cluster.name}</span>
+                    <Server className="w-4 h-4 text-zinc-700" />
+                    <span className="font-semibold text-xs text-zinc-900">{cluster.name}</span>
                   </div>
-                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border font-bold ${
+                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${
                     cluster.status === "Optimal" 
-                      ? "bg-black text-white border-black" 
-                      : "bg-zinc-200 text-black border-zinc-400"
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                      : "bg-amber-50 text-amber-700 border-amber-200"
                   }`}>
                     {cluster.status}
                   </span>
                 </div>
 
-                <div className="text-[11px] font-mono text-zinc-600 space-y-1">
-                  <div>GPU: <span className="text-black font-medium">{cluster.gpu}</span></div>
+                <div className="text-[11px] text-zinc-500 space-y-1">
+                  <div>GPU: <span className="text-zinc-800 font-medium">{cluster.gpu}</span></div>
                   <div className="flex justify-between">
                     <span>Active: {cluster.nodes}</span>
                     <span>Temp: {cluster.temp}</span>
@@ -321,13 +314,13 @@ export default function OverviewPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <div className="flex justify-between text-[10px] font-mono text-zinc-600">
+                  <div className="flex justify-between text-[10px] text-zinc-500">
                     <span>GPU Utilization</span>
-                    <span className="text-black font-bold">{cluster.load}%</span>
+                    <span className="text-zinc-900 font-semibold">{cluster.load}%</span>
                   </div>
-                  <div className="w-full bg-zinc-200 h-1.5 rounded-full overflow-hidden">
+                  <div className="w-full bg-zinc-200/80 h-1.5 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-black" 
+                      className="h-full bg-zinc-900" 
                       style={{ width: `${cluster.load}%` }} 
                     />
                   </div>
@@ -338,31 +331,31 @@ export default function OverviewPage() {
         </div>
       </div>
 
-      {/* Live Active Streaming Sessions Table */}
-      <div className="bg-white rounded-2xl p-6 border border-zinc-200 shadow-sm space-y-5">
+      {/* Live Active Player Sessions Table */}
+      <div className="bg-white rounded-2xl p-6 border border-zinc-200/80 shadow-xs space-y-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="font-bold text-black text-base">Live Active Player Sessions</h2>
-              <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-black text-white">
+            <div className="flex items-center gap-2.5">
+              <h2 className="font-semibold text-zinc-900 text-base">Active Player Sessions</h2>
+              <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-700 border border-zinc-200">
                 {filteredSessions.length} Streams Active
               </span>
             </div>
-            <p className="text-xs text-zinc-500 mt-0.5">
-              Real-time monitoring of user streams, connected device, GPU hardware, and frame rate metrics
+            <p className="text-xs text-zinc-500 mt-1 font-normal">
+              Real-time monitoring of connected player hardware, resolution, latency, and session duration.
             </p>
           </div>
 
           {/* Tier Filters */}
-          <div className="flex items-center gap-2 bg-zinc-100 border border-zinc-300 p-1 rounded-xl text-xs font-mono">
+          <div className="flex items-center gap-1 bg-zinc-100/80 border border-zinc-200/70 p-1 rounded-xl text-xs">
             {["All", "Basic", "Priority", "Ultra", "Ultimate"].map((tier) => (
               <button
                 key={tier}
                 onClick={() => setSelectedFilter(tier)}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer font-bold ${
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer font-medium ${
                   selectedFilter === tier
-                    ? "bg-black text-white shadow-sm"
-                    : "text-zinc-600 hover:text-black"
+                    ? "bg-white text-zinc-900 shadow-xs border border-zinc-200/60 font-semibold"
+                    : "text-zinc-500 hover:text-zinc-900"
                 }`}
               >
                 {tier}
@@ -371,12 +364,12 @@ export default function OverviewPage() {
           </div>
         </div>
 
-        {/* Table */}
+        {/* Clean Modern Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-mono border-collapse">
+          <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b-2 border-black text-black uppercase tracking-wider font-bold bg-zinc-50">
-                <th className="py-3 px-4">Session ID & User</th>
+              <tr className="border-b border-zinc-200 text-zinc-500 font-semibold text-[11px] uppercase tracking-wider bg-zinc-50/50">
+                <th className="py-3 px-4">User</th>
                 <th className="py-3 px-4">Game Title</th>
                 <th className="py-3 px-4">Plan Tier</th>
                 <th className="py-3 px-4">Device</th>
@@ -386,45 +379,45 @@ export default function OverviewPage() {
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200">
+            <tbody className="divide-y divide-zinc-100">
               {filteredSessions.map((s) => (
-                <tr key={s.id} className="hover:bg-zinc-50 transition-colors">
+                <tr key={s.id} className="hover:bg-zinc-50/60 transition-colors">
                   <td className="py-3.5 px-4">
-                    <div className="font-bold text-black">{s.user}</div>
-                    <div className="text-[10px] text-zinc-500">{s.email}</div>
+                    <div className="font-semibold text-zinc-900">{s.user}</div>
+                    <div className="text-[11px] text-zinc-400 font-normal">{s.email}</div>
                   </td>
-                  <td className="py-3.5 px-4 font-bold text-black">
+                  <td className="py-3.5 px-4 font-semibold text-zinc-900">
                     {s.game}
                   </td>
                   <td className="py-3.5 px-4">
-                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold border bg-zinc-100 text-black border-zinc-300">
+                    <span className="px-2.5 py-1 rounded-full text-[11px] font-medium border bg-zinc-100/80 text-zinc-800 border-zinc-200">
                       {s.tier} ({s.planPrice})
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 text-black">
+                  <td className="py-3.5 px-4 text-zinc-800">
                     <div className="flex items-center gap-1.5 font-medium">
-                      {s.device === "TV" && <Tv className="w-3.5 h-3.5 text-black" />}
-                      {s.device === "Laptop" && <Laptop className="w-3.5 h-3.5 text-black" />}
-                      {s.device === "Phone" && <Smartphone className="w-3.5 h-3.5 text-black" />}
-                      {s.device === "Tablet" && <Tablet className="w-3.5 h-3.5 text-black" />}
+                      {s.device === "TV" && <Tv className="w-3.5 h-3.5 text-zinc-600" />}
+                      {s.device === "Laptop" && <Laptop className="w-3.5 h-3.5 text-zinc-600" />}
+                      {s.device === "Phone" && <Smartphone className="w-3.5 h-3.5 text-zinc-600" />}
+                      {s.device === "Tablet" && <Tablet className="w-3.5 h-3.5 text-zinc-600" />}
                       <span>{s.device}</span>
                     </div>
                   </td>
                   <td className="py-3.5 px-4">
-                    <div className="text-black font-semibold">{s.res}</div>
-                    <div className="text-[10px] text-zinc-500">{s.gpu}</div>
+                    <div className="text-zinc-900 font-medium">{s.res}</div>
+                    <div className="text-[11px] text-zinc-400">{s.gpu}</div>
                   </td>
                   <td className="py-3.5 px-4">
-                    <span className="text-black font-bold">{s.latency}</span>
-                    <span className="text-zinc-500 text-[10px]"> • {s.bitrate}</span>
+                    <span className="text-zinc-900 font-semibold">{s.latency}</span>
+                    <span className="text-zinc-400 text-[11px]"> • {s.bitrate}</span>
                   </td>
-                  <td className="py-3.5 px-4 text-zinc-600 font-medium">
+                  <td className="py-3.5 px-4 text-zinc-500 font-medium">
                     {s.duration}
                   </td>
                   <td className="py-3.5 px-4 text-right">
                     <button
                       onClick={() => terminateSession(s.id)}
-                      className="px-3 py-1 rounded-lg bg-black text-white hover:bg-zinc-800 text-[10px] font-bold transition-all cursor-pointer border border-black shadow-sm"
+                      className="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white text-[11px] font-medium transition-all cursor-pointer shadow-xs"
                     >
                       Kill Stream
                     </button>

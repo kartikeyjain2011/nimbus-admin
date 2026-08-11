@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: var(--font-poppins), 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-poppins), monospace;
+}
+
 :root {
   --bg-void: #ffffff;
   --bg-card: #ffffff;
@@ -11,9 +16,9 @@
 }
 
 body {
-  background-color: #ffffff;
+  background-color: #fcfcfd;
   color: #09090b;
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-poppins), 'Poppins', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
 }
 

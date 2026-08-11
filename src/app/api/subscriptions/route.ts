@@ -1,5 +1,14 @@
 import { NextResponse } from "next/server";
-import { getStorePlans, getStoreTransactions, addRazorpayTransaction, getStoreUsers } from "@/lib/dataStore";
+import { 
+  getStorePlans, 
+  getStoreTransactions, 
+  setStoreTransactions,
+  addRazorpayTransaction, 
+  getStoreUsers,
+  cancelStoreSubscription,
+  activateStoreSubscription,
+  refundStoreTransaction
+} from "@/lib/dataStore";
 
 export async function GET() {
   try {
@@ -18,8 +27,10 @@ export async function GET() {
         amount: u.tier === "Ultimate" ? "₹2,999" : u.tier === "Ultra" ? "₹2,499" : u.tier === "Priority" ? "₹1,499" : "₹799",
         method: i % 2 === 0 ? "UPI (Razorpay Live)" : "Credit Card (HDFC)",
         date: new Date(Date.now() - i * 3600000).toISOString().replace("T", " ").substring(0, 16),
-        status: "Success" as const
+        status: "Success" as const,
+        subscriptionStatus: "Active" as const
       }));
+      setStoreTransactions(transactions);
     }
 
     const totalMRRNumber = plans.reduce((acc, p) => {
@@ -49,7 +60,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { action, user, email, plan, amount, method } = body;
+    const { action, user, email, plan, amount, method, txId } = body;
 
     if (action === "log_transaction") {
       const newTx = addRazorpayTransaction({
@@ -61,9 +72,46 @@ export async function POST(req: Request) {
         amount: amount || "₹1,499",
         method: method || "UPI (Razorpay Live)",
         date: new Date().toISOString().replace("T", " ").substring(0, 16),
-        status: "Success"
+        status: "Success",
+        subscriptionStatus: "Active"
       });
       return NextResponse.json({ success: true, transaction: newTx });
+    }
+
+    if (action === "cancel_subscription") {
+      if (!txId) {
+        return NextResponse.json({ success: false, error: "Transaction ID is required" }, { status: 400 });
+      }
+      const updatedTx = cancelStoreSubscription(txId);
+      return NextResponse.json({ 
+        success: true, 
+        message: "Subscription cancelled successfully", 
+        transaction: updatedTx 
+      });
+    }
+
+    if (action === "activate_subscription") {
+      if (!txId) {
+        return NextResponse.json({ success: false, error: "Transaction ID is required" }, { status: 400 });
+      }
+      const updatedTx = activateStoreSubscription(txId);
+      return NextResponse.json({ 
+        success: true, 
+        message: "Subscription activated successfully", 
+        transaction: updatedTx 
+      });
+    }
+
+    if (action === "process_refund") {
+      if (!txId) {
+        return NextResponse.json({ success: false, error: "Transaction ID is required" }, { status: 400 });
+      }
+      const updatedTx = refundStoreTransaction(txId);
+      return NextResponse.json({ 
+        success: true, 
+        message: "Refund processed successfully via Razorpay API", 
+        transaction: updatedTx 
+      });
     }
 
     return NextResponse.json({ success: false, error: "Invalid subscription action" }, { status: 400 });

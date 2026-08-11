@@ -5,6 +5,7 @@ export interface UserRecord {
   email: string;
   imageUrl?: string;
   tier: "Basic" | "Priority" | "Ultra" | "Ultimate";
+  subscriptionStatus?: "Active" | "Cancelled";
   joined: string;
   totalHours: string;
   status: "Active Now" | "Idle" | "Offline";
@@ -35,7 +36,8 @@ export interface RazorpayTransaction {
   amount: string;
   method: string;
   date: string;
-  status: "Success" | "Pending" | "Failed";
+  status: "Success" | "Pending" | "Failed" | "Cancelled" | "Refunded";
+  subscriptionStatus?: "Active" | "Cancelled" | "Refunded";
 }
 
 export interface GameItem {
@@ -78,6 +80,22 @@ export const updateUserTier = (userId: string, newTier: UserRecord["tier"]) => {
   return user;
 };
 
+export const cancelUserSubscription = (userId: string) => {
+  const user = usersStore.find(u => u.id === userId || u.clerkId === userId);
+  if (user) {
+    user.subscriptionStatus = "Cancelled";
+  }
+  return user;
+};
+
+export const activateUserSubscription = (userId: string) => {
+  const user = usersStore.find(u => u.id === userId || u.clerkId === userId);
+  if (user) {
+    user.subscriptionStatus = "Active";
+  }
+  return user;
+};
+
 export const addUserGamePurchase = (userId: string, gameTitle: string) => {
   const user = usersStore.find(u => u.id === userId || u.clerkId === userId);
   if (user) {
@@ -101,6 +119,33 @@ export const setStoreTransactions = (txs: RazorpayTransaction[]) => {
 
 export const addRazorpayTransaction = (tx: RazorpayTransaction) => {
   transactionsStore.unshift(tx);
+  return tx;
+};
+
+export const cancelStoreSubscription = (txId: string) => {
+  const tx = transactionsStore.find(t => t.txId === txId);
+  if (tx) {
+    tx.subscriptionStatus = "Cancelled";
+    tx.status = "Cancelled";
+  }
+  return tx;
+};
+
+export const activateStoreSubscription = (txId: string) => {
+  const tx = transactionsStore.find(t => t.txId === txId);
+  if (tx) {
+    tx.subscriptionStatus = "Active";
+    tx.status = "Success";
+  }
+  return tx;
+};
+
+export const refundStoreTransaction = (txId: string) => {
+  const tx = transactionsStore.find(t => t.txId === txId);
+  if (tx) {
+    tx.subscriptionStatus = "Refunded";
+    tx.status = "Refunded";
+  }
   return tx;
 };
 
