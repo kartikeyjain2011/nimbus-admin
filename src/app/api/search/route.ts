@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { getStoreUsers, getStoreTransactions, getStoreGames } from "@/lib/dataStore";
+import { requireAdmin } from "@/lib/requireAdmin";
 
 export async function GET(req: Request) {
+  const unauthorized = await requireAdmin();
+  if (unauthorized) return unauthorized;
+
   try {
     const { searchParams } = new URL(req.url);
     const query = (searchParams.get("q") || "").trim().toLowerCase();

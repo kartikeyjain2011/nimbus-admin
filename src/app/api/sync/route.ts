@@ -9,8 +9,12 @@ import {
   setStoreTransactions,
   addRazorpayTransaction
 } from "@/lib/dataStore";
+import { requireAdmin } from "@/lib/requireAdmin";
 
 export async function GET() {
+  const unauthorized = await requireAdmin();
+  if (unauthorized) return unauthorized;
+
   const targetUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || "https://frontendnimbuz.vercel.app";
   const rawgApiKey = process.env.NEXT_PUBLIC_RAWG_API_KEY || "eff2d0fa962b4061bd1a6fab810525d3";
   const syncLogs: string[] = [];
@@ -171,5 +175,13 @@ export async function POST(req: Request) {
   } catch {
     // Ignore body parse errors
   }
+
+  // Ingestion above stays open for webhooks from the storefront, but the full
+  // telemetry payload below is only returned to a signed-in admin.
+  const unauthorized = await requireAdmin();
+  if (unauthorized) {
+    return NextResponse.json({ success: true, ingested: true });
+  }
+
   return GET();
 }

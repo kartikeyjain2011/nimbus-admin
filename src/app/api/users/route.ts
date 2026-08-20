@@ -7,8 +7,12 @@ import {
   cancelUserSubscription,
   activateUserSubscription
 } from "@/lib/dataStore";
+import { requireAdmin } from "@/lib/requireAdmin";
 
 export async function GET() {
+  const unauthorized = await requireAdmin();
+  if (unauthorized) return unauthorized;
+
   try {
     const secretKey = process.env.CLERK_SECRET_KEY;
     let fetchedLiveClerkUsers = false;
@@ -44,6 +48,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const unauthorized = await requireAdmin();
+  if (unauthorized) return unauthorized;
+
   try {
     const body = await req.json();
     const { action, userId, tier, gameTitle } = body;

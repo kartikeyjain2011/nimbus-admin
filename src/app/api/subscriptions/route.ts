@@ -9,8 +9,12 @@ import {
   activateStoreSubscription,
   refundStoreTransaction
 } from "@/lib/dataStore";
+import { requireAdmin } from "@/lib/requireAdmin";
 
 export async function GET() {
+  const unauthorized = await requireAdmin();
+  if (unauthorized) return unauthorized;
+
   try {
     const plans = getStorePlans();
     let transactions = getStoreTransactions();
@@ -58,6 +62,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const unauthorized = await requireAdmin();
+  if (unauthorized) return unauthorized;
+
   try {
     const body = await req.json();
     const { action, user, email, plan, amount, method, txId } = body;

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { SignOutButton } from "@clerk/nextjs";
 import { 
   LayoutDashboard, 
   Gamepad2, 
@@ -26,17 +27,6 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-      router.push("/login");
-      router.refresh();
-    } catch (e) {
-      console.error("Logout failed:", e);
-    }
-  };
 
   return (
     <aside className="w-64 bg-white border-r border-zinc-200/80 flex flex-col justify-between shrink-0 h-screen sticky top-0 font-sans">
@@ -140,14 +130,15 @@ export default function Sidebar() {
             <span className="text-[11px] font-semibold text-zinc-800">Vercel Edge</span>
           </div>
 
-          <button
-            onClick={handleLogout}
-            className="px-2.5 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-900 hover:text-white border border-zinc-200 text-zinc-700 text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5"
-            title="Sign out of Super Admin"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Logout</span>
-          </button>
+          <SignOutButton redirectUrl="/login">
+            <button
+              className="px-2.5 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-900 hover:text-white border border-zinc-200 text-zinc-700 text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5"
+              title="Sign out of Super Admin"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Logout</span>
+            </button>
+          </SignOutButton>
         </div>
       </div>
     </aside>

@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { getStoreGames, setStoreGames } from "@/lib/dataStore";
+import { requireAdmin } from "@/lib/requireAdmin";
 
 export async function GET() {
+  const unauthorized = await requireAdmin();
+  if (unauthorized) return unauthorized;
+
   try {
     let games = getStoreGames();
 
